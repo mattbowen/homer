@@ -1,17 +1,65 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model howard_hs_2022 {
+  fid                                   Int                      @id @default(autoincrement())
+  name                                  String?                  @db.VarChar
+  description                           String?                  @db.VarChar
+  timestamp                             DateTime?                @db.Timestamptz(6)
+  begin                                 DateTime?                @db.Timestamptz(6)
+  end                                   DateTime?                @db.Timestamptz(6)
+  altitudemode                          String?                  @db.VarChar
+  tessellate                            Int?
+  extrude                               Int?
+  visibility                            Int?
+  draworder                             Int?
+  icon                                  String?                  @db.VarChar
+  hi_home                               String?                  @db.VarChar
+  street1                               String?                  @db.VarChar
+  street2                               String?                  @db.VarChar
+  high_school_ratings_usn_md_rank       Int?
+  high_school_ratings_usn_national_rank Int?
+  high_school_ratings_gs_overall        Int?
+  high_school_ratings_gs_tests          Int?
+  high_school_ratings_gs_college        Int?
+  high_school_ratings_gs_equity         Int?
+  high_school_composite_score           Float?
+  geom                                  Unsupported("geometry")?
+
+  @@index([geom], map: "howard_hs_2022_geom_geom_idx", type: Gist)
+}
+
+model raw_zillow_data {
+  id              BigInt @id
+  address         String
+  area            String?
+  bathrooms       BigInt?
+  bedrooms        BigInt?
+  broker_name     String?
+  currency        String?
+  days_on_zillow  String?
+  image           String?
+  input           String?
+  is_zillow_owned Boolean?
+  land_area       String?
+  latitude        Float?
+  listing_type    String?
+  listing_url     String?
+  longitude       Float?
+  price           BigInt?
+  property_id     BigInt
+  property_url    String?
+  rank            BigInt?
+  rent_zestimate  BigInt?
+  sold_date       String?
+  zestimate       BigInt?
+  filename        String
+  createdAt DateTime @default(now())
 }
