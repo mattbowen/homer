@@ -37,29 +37,27 @@ model howard_hs_2022 {
 }
 
 model raw_zillow_data {
-  id              BigInt @id
+  id              Int @id @default(autoincrement())
   address         String
-  area            String?
-  bathrooms       BigInt?
-  bedrooms        BigInt?
+  area            Int?
+  bathrooms       Float?
+  bedrooms        Int?
   broker_name     String?
   currency        String?
-  days_on_zillow  String?
+  days_on_zillow  Int?
   image           String?
   input           String?
   is_zillow_owned Boolean?
-  land_area       String?
   latitude        Float?
   listing_type    String?
   listing_url     String?
   longitude       Float?
-  price           BigInt?
-  property_id     BigInt
+  price           Int?
+  property_id     Int
   property_url    String?
-  rank            BigInt?
-  rent_zestimate  BigInt?
-  sold_date       String?
-  zestimate       BigInt?
+  rank            Int?
+  rent_zestimate  Int?
+  zestimate       Int?
   filename        String
   createdAt DateTime @default(now())
 }

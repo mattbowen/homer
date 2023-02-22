@@ -26,6 +26,7 @@ specifiers:
   react-dom: 18.2.0
   superjson: 1.9.1
   tailwindcss: ^3.2.0
+  ts-transformer-keys: ^0.4.4
   typescript: ^4.9.4
   zod: ^3.20.2
 
@@ -41,6 +42,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   superjson: 1.9.1
+  ts-transformer-keys: 0.4.4_typescript@4.9.5
   zod: 3.20.6
 
 devDependencies:
@@ -2762,6 +2764,14 @@ packages:
       is-number: 7.0.0
     dev: true
 
+  /ts-transformer-keys/0.4.4_typescript@4.9.5:
+    resolution: {integrity: sha512-LrqgvaFvar01/5mbunRyeLTSIkqoC2xfcpL/90aDY6vR07DGyH+UaYGdIEsUudnlAw2Sr0pxFgdZvE0QIyI4qA==}
+    peerDependencies:
+      typescript: '>=2.4.1'
+    dependencies:
+      typescript: 4.9.5
+    dev: false
+
   /tsconfig-paths/3.14.1:
     resolution: {integrity: sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==}
     dependencies:
@@ -2812,7 +2822,6 @@ packages:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
