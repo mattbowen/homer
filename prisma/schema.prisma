@@ -36,7 +36,7 @@ model howard_hs_2022 {
   @@index([geom], map: "howard_hs_2022_geom_geom_idx", type: Gist)
 }
 
-model raw_zillow_data {
+model rawZillowData {
   id            Int      @id @default(autoincrement())
   address       String
   area          Int?
@@ -61,5 +61,6 @@ model raw_zillow_data {
   filename      String
   createdAt     DateTime @default(now())
 
-  @@index(fields: [filename])
+  @@index([filename])
+  @@index([propertyId])
 }

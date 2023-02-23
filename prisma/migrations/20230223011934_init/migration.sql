@@ -28,32 +28,39 @@ CREATE TABLE "howard_hs_2022" (
 );
 
 -- CreateTable
-CREATE TABLE "raw_zillow_data" (
-    "address" TEXT,
-    "area" TEXT,
-    "bathrooms" BIGINT,
-    "bedrooms" BIGINT,
-    "broker_name" TEXT,
+CREATE TABLE "rawZillowData" (
+    "id" SERIAL NOT NULL,
+    "address" TEXT NOT NULL,
+    "area" INTEGER,
+    "bathrooms" DOUBLE PRECISION,
+    "bedrooms" INTEGER,
+    "brokerName" TEXT,
     "currency" TEXT,
-    "days_on_zillow" TEXT,
+    "daysOnZillow" INTEGER,
     "image" TEXT,
     "input" TEXT,
-    "is_zillow_owned" BOOLEAN,
-    "land_area" TEXT,
+    "isZillowOwned" BOOLEAN,
     "latitude" DOUBLE PRECISION,
-    "listing_type" TEXT,
-    "listing_url" TEXT,
+    "listingType" TEXT,
+    "listingUrl" TEXT,
     "longitude" DOUBLE PRECISION,
-    "price" BIGINT,
-    "property_id" BIGINT NOT NULL,
-    "property_url" TEXT,
-    "rank" BIGINT,
-    "rent_zestimate" BIGINT,
-    "sold_date" TEXT,
-    "zestimate" BIGINT,
+    "price" INTEGER,
+    "propertyId" TEXT NOT NULL,
+    "propertyUrl" TEXT,
+    "rank" INTEGER,
+    "rentZestimate" INTEGER,
+    "zestimate" INTEGER,
+    "filename" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "raw_zillow_data_pkey" PRIMARY KEY ("property_id")
+    CONSTRAINT "rawZillowData_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE INDEX "howard_hs_2022_geom_geom_idx" ON "howard_hs_2022" USING GIST ("geom");
+
+-- CreateIndex
+CREATE INDEX "rawZillowData_filename_idx" ON "rawZillowData"("filename");
+
+-- CreateIndex
+CREATE INDEX "rawZillowData_propertyId_idx" ON "rawZillowData"("propertyId");

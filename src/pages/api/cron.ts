@@ -9,34 +9,33 @@ import type {
   IRawZillowData,
 } from "../../types.js";
 import { PrismaClient } from "@prisma/client";
-import { keys } from "ts-transformer-keys";
 
 class RawZillowData implements IRawZillowData {
   readonly address: string;
-  readonly broker_name?: string | undefined;
+  readonly brokerName?: string | undefined;
   readonly currency?: string | undefined;
   readonly image?: string | undefined;
   readonly input?: string | undefined;
-  readonly listing_type?: string | undefined;
-  readonly listing_url?: string | undefined;
-  readonly property_url?: string | undefined;
+  readonly listingType?: string | undefined;
+  readonly listingUrl?: string | undefined;
+  readonly propertyUrl?: string | undefined;
   readonly filename: string;
+  readonly propertyId: string;
 
   #rawData: IRawPropertyWithFileInfo;
 
   constructor(rawData: IRawPropertyWithFileInfo) {
-    const logger = getLogger("cron");
-    logger.debug(JSON.stringify(rawData, undefined, 2));
     this.#rawData = rawData;
     this.address = rawData.address;
-    this.broker_name = rawData.broker_name;
+    this.brokerName = rawData.broker_name;
     this.currency = rawData.currency;
     this.image = rawData.image;
     this.input = rawData.input;
-    this.listing_type = rawData.listing_type;
-    this.listing_url = rawData.listing_url;
-    this.property_url = rawData.property_url;
+    this.listingType = rawData.listing_type;
+    this.listingUrl = rawData.listing_url;
+    this.propertyUrl = rawData.property_url;
     this.filename = rawData.filename;
+    this.propertyId = rawData.property_id;
   }
   get bathrooms() {
     if (this.#rawData.bathrooms) {
@@ -54,13 +53,13 @@ class RawZillowData implements IRawZillowData {
       : undefined;
   }
 
-  get days_on_zillow() {
+  get daysOnZillow() {
     return this.#rawData.days_on_zillow
       ? Number(this.#rawData.days_on_zillow)
       : undefined;
   }
 
-  get is_zillow_owned() {
+  get isZillowOwned() {
     return this.#rawData.is_zillow_owned
       ? this.#rawData.is_zillow_owned === "True"
       : false;
@@ -80,15 +79,12 @@ class RawZillowData implements IRawZillowData {
     return this.#rawData.price ? Number(this.#rawData.price) : undefined;
   }
 
-  get property_id() {
-    return Number(this.#rawData.property_id);
-  }
 
   get rank() {
     return this.#rawData.rank ? Number(this.#rawData.rank) : undefined;
   }
 
-  get rent_zestimate() {
+  get rentZestimate() {
     return this.#rawData.rent_zestimate
       ? Number(this.#rawData.rent_zestimate)
       : undefined;
@@ -106,21 +102,21 @@ class RawZillowData implements IRawZillowData {
       area: this.area,
       bathrooms: this.bathrooms,
       bedrooms: this.bedrooms,
-      broker_name: this.broker_name,
+      brokerName: this.brokerName,
       currency: this.currency,
-      days_on_zillow: this.days_on_zillow,
+      daysOnZillow: this.daysOnZillow,
       image: this.image,
       input: this.input,
-      is_zillow_owned: this.is_zillow_owned,
+      isZillowOwned: this.isZillowOwned,
       latitude: this.latitude,
-      listing_type: this.listing_type,
-      listing_url: this.listing_url,
+      listingType: this.listingType,
+      listingUrl: this.listingUrl,
       longitude: this.longitude,
       price: this.price,
-      property_id: this.property_id,
-      property_url: this.property_url,
+      propertyId: this.propertyId,
+      propertyUrl: this.propertyUrl,
       rank: this.rank,
-      rent_zestimate: this.rent_zestimate,
+      rentZestimate: this.rentZestimate,
       zestimate: this.zestimate,
       filename: this.filename,
     };
@@ -140,7 +136,7 @@ export default async function handler(
         "/home/matt/Dropbox/Apps/ScrapeHero-Cloud/Zillow Scraper";
       if (authorization === `Bearer ${env.API_SECRET_KEY}`) {
         const prisma = new PrismaClient();
-        const knownFiles = await prisma.raw_zillow_data.findMany({
+        const knownFiles = await prisma.rawZillowData.findMany({
           where: {},
           distinct: ["filename"],
           select: { filename: true },
@@ -179,12 +175,12 @@ export default async function handler(
         //   data: allFileData,
         // });
         let totalRecords = 0;
-        allFileData.map(async (fileData) => {
-          const recordsCreated = await prisma.raw_zillow_data.createMany({
-            data: fileData,
+        await Promise.all(allFileData.map(async (fileData) => {
+          const recordsCreated = await prisma.rawZillowData.createMany({
+            data: fileData as RawZillowData[],
           });
           totalRecords += recordsCreated.count;
-        });
+        }));
         res.status(200).json(totalRecords);
       } else {
         res.status(401).json({ success: false });
