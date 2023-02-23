@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -63,4 +64,31 @@ model rawZillowData {
 
   @@index([filename])
   @@index([propertyId])
+}
+
+view ZillowDataView {
+  id            Int  @unique
+  address       String?
+  area          Int?
+  bathrooms     Float?
+  bedrooms      Int?
+  brokerName    String?
+  currency      String?
+  daysOnZillow  Int?
+  image         String?
+  input         String?
+  isZillowOwned Boolean?
+  latitude      Float?
+  listingType   String?
+  listingUrl    String?
+  longitude     Float?
+  price         Int?
+  propertyId    String?
+  propertyUrl   String?
+  rank          Int?
+  rentZestimate Int?
+  zestimate     Int?
+  filename      String?
+  createdAt     DateTime?
+  school_name   String?   @db.VarChar
 }
