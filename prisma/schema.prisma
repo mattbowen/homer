@@ -1,6 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["views"]
+  binaryTargets   = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -67,7 +68,7 @@ model rawZillowData {
 }
 
 view ZillowDataView {
-  id            Int  @unique
+  id            Int       @unique
   address       String?
   area          Int?
   bathrooms     Float?

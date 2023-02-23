@@ -10,7 +10,7 @@ import { env } from "../env.mjs";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { api } from "../utils/api";
 import { useState } from "react";
-import type { ZillowDataView } from "@prisma/client";
+import { ZillowDataView } from "@prisma/client";
 
 const ICON = `M3 10v11h6v-7h6v7h6v-11L12,3z`;
 const pinStyle = {
@@ -28,8 +28,8 @@ function Pin({ size = 40 }) {
 }
 
 const DeckMap = () => {
-  const houses = api.houses.getAll.useQuery() as ZillowDataView[];
-  const [popupInfo, setPopupInfo] = useState(null);
+  const houses = api.houses.getAll.useQuery();
+  const [popupInfo, setPopupInfo] = useState<ZillowDataView | null>(null);
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -60,33 +60,41 @@ const DeckMap = () => {
           >
             <div>
               {popupInfo.address} <br />
-              <strong>{String(formatter.format(popupInfo.price))}</strong>{" "}
+              {popupInfo.price && (
+                <strong>{String(formatter.format(popupInfo.price))}</strong>
+              )}
               <br />
               <em>{popupInfo.school_name}</em> <br />
             </div>
-            <a target="_new" href={popupInfo.propertyUrl}>
-              <img width="100%" src={popupInfo.image} />
-            </a>
+            {popupInfo.propertyUrl && (
+              <a target="_new" href={popupInfo.propertyUrl}>
+                {popupInfo.image && <img width="100%" src={popupInfo.image} />}
+              </a>
+            )}
           </Popup>
         )}
         {houses.data &&
           houses.data.map((datum) => {
-            return (
-              <Marker
-                longitude={datum.longitude}
-                latitude={datum.latitude}
-                anchor="bottom"
-                key={datum.id}
-                onClick={(e) => {
-                  // If we let the click event propagates to the map, it will immediately close the popup
-                  // with `closeOnClick: true`
-                  e.originalEvent.stopPropagation();
-                  setPopupInfo(datum);
-                }}
-              >
-                <Pin />
-              </Marker>
-            );
+            if (datum.longitude && datum.latitude) {
+              return (
+                <Marker
+                  longitude={datum.longitude}
+                  latitude={datum.latitude}
+                  anchor="bottom"
+                  key={datum.id}
+                  onClick={(e) => {
+                    // If we let the click event propagates to the map, it will immediately close the popup
+                    // with `closeOnClick: true`
+                    e.originalEvent.stopPropagation();
+                    setPopupInfo(datum);
+                  }}
+                >
+                  <Pin />
+                </Marker>
+              );
+            } else {
+              return null;
+            }
           })}
       </Map>
     </div>
