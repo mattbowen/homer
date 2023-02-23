@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
@@ -37,27 +37,29 @@ model howard_hs_2022 {
 }
 
 model raw_zillow_data {
-  id              Int @id @default(autoincrement())
-  address         String
-  area            Int?
-  bathrooms       Float?
-  bedrooms        Int?
-  broker_name     String?
-  currency        String?
-  days_on_zillow  Int?
-  image           String?
-  input           String?
-  is_zillow_owned Boolean?
-  latitude        Float?
-  listing_type    String?
-  listing_url     String?
-  longitude       Float?
-  price           Int?
-  property_id     Int
-  property_url    String?
-  rank            Int?
-  rent_zestimate  Int?
-  zestimate       Int?
-  filename        String
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  address       String
+  area          Int?
+  bathrooms     Float?
+  bedrooms      Int?
+  brokerName    String?
+  currency      String?
+  daysOnZillow  Int?
+  image         String?
+  input         String?
+  isZillowOwned Boolean?
+  latitude      Float?
+  listingType   String?
+  listingUrl    String?
+  longitude     Float?
+  price         Int?
+  propertyId    String
+  propertyUrl   String?
+  rank          Int?
+  rentZestimate Int?
+  zestimate     Int?
+  filename      String
+  createdAt     DateTime @default(now())
+
+  @@index(fields: [filename])
 }
