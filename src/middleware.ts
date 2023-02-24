@@ -15,7 +15,10 @@ export async function middleware(req: NextRequest) {
   // Check auth condition
   if (
     session?.user.email?.endsWith("@mattbowen.net") ||
-    session?.user.email === "lauraerbebowen@gmail.com"
+    session?.user.email === "lauraerbebowen@gmail.com" || 
+    req.url.startsWith("/_next/static") || 
+    req.url.startsWith("/_next/image")
+
   ) {
     // Authentication successful, forward request to protected route.
     return res;
@@ -31,6 +34,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/((?!api/cron|login|_next/static|_next/image|favicon.ico|404|500).*)",
+    "/((?!api/cron|login|_next/static|_next/image|_next/|favicon.ico|404|500).*)",
   ],
 };
