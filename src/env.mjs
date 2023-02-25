@@ -9,6 +9,7 @@ const server = z.object({
   SHADOW_DATABASE_URL: z.string().url(),
   API_SECRET_KEY: z.string(),
   NODE_ENV: z.enum(["development", "test", "production"]),
+  SUPABASE_SERVER_ROLE: z.string(),
 });
 
 /**
@@ -33,6 +34,7 @@ const processEnv = {
   NODE_ENV: process.env.NODE_ENV,
   SHADOW_DATABASE_URL: process.env.SHADOW_DATABASE_URL,
   API_SECRET_KEY: process.env.API_SECRET_KEY,
+  SUPABASE_SERVER_ROLE: process.env.SUPABASE_SERVER_ROLE,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,

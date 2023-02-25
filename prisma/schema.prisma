@@ -92,3 +92,9 @@ view ZillowDataView {
   createdAt     DateTime?
   school_name   String?   @db.VarChar
 }
+
+model AuthorizedEmail {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  email     String   @unique
+}

@@ -1,7 +1,12 @@
 import Head from "next/head";
-import { type NextPage } from "next";
+import {
+  type NextPage,
+  type GetServerSideProps,
+  type GetServerSidePropsContext,
+} from "next";
 import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const Login: NextPage = () => {
   const supabase = useSupabaseClient();
@@ -20,7 +25,7 @@ const Login: NextPage = () => {
               theme="dark"
               view="magic_link"
               magicLink={true}
-              redirectTo='/'
+              redirectTo="/"
               showLinks={false}
             />
           </div>
@@ -31,3 +36,30 @@ const Login: NextPage = () => {
 };
 
 export default Login;
+type Redirect = {
+  redirect: {
+    permanent: boolean;
+    destination: string;
+  };
+};
+
+export const getServerSideProps: GetServerSideProps<Redirect | object> = async (
+  context: GetServerSidePropsContext
+) => {
+  const supabase = createServerSupabaseClient(context);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};

@@ -1,27 +1,37 @@
 import { createMiddlewareSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getLogger } from "./logging/logging-util";
+import { env } from "./env.mjs";
 
 export async function middleware(req: NextRequest) {
-  // We need to create a response and hand it to the supabase client to be able to modify the response headers.
+  const logger = getLogger("auth");
   const res = NextResponse.next();
-  // Create authenticated Supabase Client.
   const supabase = createMiddlewareSupabaseClient({ req, res });
-  // Check if we have a session
+  const queryClient = createClient(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.SUPABASE_SERVER_ROLE
+  );
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
+  const { data, error } = await queryClient
+    .from("AuthorizedEmail")
+    .select("email");
+  if (!data || error) {
+    throw error;
+  }
+  const emails = data.map(({ email }) => email as string);
   // Check auth condition
   if (
-    session?.user.email?.endsWith("@mattbowen.net") ||
-    session?.user.email === "lauraerbebowen@gmail.com"
-
+    session?.user.email &&
+    emails &&
+    emails.includes(session.user.email)
   ) {
     // Authentication successful, forward request to protected route.
     return res;
   }
-
   // Auth condition not met, redirect to home page.
   const redirectUrl = req.nextUrl.clone();
   redirectUrl.pathname = "/login";
@@ -32,7 +42,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/api/trpc",
+    "/api/trpc/:path*",
     // "/((?!api/cron|login|_next/static|_next/image|_next/|favicon.ico|404|500).*)",
   ],
 };
