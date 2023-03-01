@@ -23,6 +23,9 @@ export default async function handler(
   if (req.method === "POST") {
     try {
       const { authorization } = req.headers;
+      if (!env.AWS_ACCESS_KEY_ID || !env.AWS_SECRET_ACCESS_KEY) {
+        throw "You have to configure AWS keys"
+      }
       const s3 = new S3Client({
         region: env.AWS_REGION,
         credentials: {

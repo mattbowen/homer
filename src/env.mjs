@@ -11,10 +11,10 @@ const server = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   SUPABASE_SERVER_ROLE: z.string(),
   DROPBOX_ACCESS_TOKEN: z.string(),
-  AWS_ACCESS_KEY_ID: z.string(),
-  AWS_SECRET_ACCESS_KEY: z.string(),
-  AWS_BUCKET_NAME: z.string(),
-  AWS_REGION: z.string(),
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+  AWS_BUCKET_NAME: z.string().optional(),
+  AWS_REGION: z.string().optional(),
 });
 
 /**
