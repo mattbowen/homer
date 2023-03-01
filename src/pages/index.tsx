@@ -1,11 +1,20 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import dynamic from "next/dynamic";
+import { api } from "../utils/api";
+import { getLogger } from "../logging/logging-util";
+import { ZillowDataView } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
-const Home: NextPage = () => {
+const Home: NextPage = ({houses}: {houses: ZillowDataView[]}) => {
+  const logger = getLogger('home');
   const MapWithNoSSR = dynamic(() => import("../components/DeckMap"), {
     ssr: false,
   });
+  logger.debug(houses);
+  if (!houses) {
+    throw "No database data available";
+  }
   return (
     <>
       <Head>
@@ -19,11 +28,32 @@ const Home: NextPage = () => {
           </h1>
         </div>
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <MapWithNoSSR />
+          <MapWithNoSSR houses={houses} />
         </div>
       </main>
     </>
   );
 };
 
+function exclude<ZillowDataView, Key extends keyof ZillowDataView>(
+  house: ZillowDataView,
+  keys: Key[]
+): Omit<ZillowDataView, Key> {
+  for (const key of keys) {
+    delete house[key]
+  }
+  return house
+}
+
+export const getServerSideProps = async () => {
+  const prisma = new PrismaClient()
+  const rawHouses = await prisma.zillowDataView.findMany();
+  // TODO: Drop createdAt from the view entirely
+  const houses = rawHouses.map((house) => exclude(house, ['createdAt']))
+  return {
+    props: {
+      houses
+    }
+  }
+}
 export default Home;

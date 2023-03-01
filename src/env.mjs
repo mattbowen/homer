@@ -10,6 +10,11 @@ const server = z.object({
   API_SECRET_KEY: z.string(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   SUPABASE_SERVER_ROLE: z.string(),
+  DROPBOX_ACCESS_TOKEN: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_BUCKET_NAME: z.string(),
+  AWS_REGION: z.string(),
 });
 
 /**
@@ -35,6 +40,11 @@ const processEnv = {
   SHADOW_DATABASE_URL: process.env.SHADOW_DATABASE_URL,
   API_SECRET_KEY: process.env.API_SECRET_KEY,
   SUPABASE_SERVER_ROLE: process.env.SUPABASE_SERVER_ROLE,
+  DROPBOX_ACCESS_TOKEN: process.env.DROPBOX_ACCESS_TOKEN,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+  AWS_REGION: process.env.AWS_REGION,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,

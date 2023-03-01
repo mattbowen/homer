@@ -27,8 +27,7 @@ function Pin({ size = 40 }) {
   );
 }
 
-const DeckMap = () => {
-  const houses = api.houses.getAll.useQuery();
+const DeckMap = ({houses}: {houses: ZillowDataView[]}) => {
   const [popupInfo, setPopupInfo] = useState<ZillowDataView | null>(null);
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -73,8 +72,8 @@ const DeckMap = () => {
             )}
           </Popup>
         )}
-        {houses.data &&
-          houses.data.map((datum) => {
+        {houses &&
+          houses.map((datum) => {
             if (datum.longitude && datum.latitude) {
               return (
                 <Marker

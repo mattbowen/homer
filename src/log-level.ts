@@ -1,6 +1,6 @@
 const logLevelData = {
   "*": "silent",
-  home: "info",
+  home: "debug",
   cron: "debug",
   auth: "debug",
 };

@@ -1,6 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "../../env.mjs";
-import { readdir, readFile } from "fs/promises";
+import {
+  GetObjectCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import path from "path";
 import { getLogger } from "../../logging/logging-util";
 import type {
@@ -9,6 +13,110 @@ import type {
   IRawZillowData,
 } from "../../types.js";
 import { PrismaClient } from "@prisma/client";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const logger = getLogger("cron");
+
+  if (req.method === "POST") {
+    try {
+      const { authorization } = req.headers;
+      const s3 = new S3Client({
+        region: env.AWS_REGION,
+        credentials: {
+          accessKeyId: env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+        },
+      });
+      if (authorization === `Bearer ${env.API_SECRET_KEY}`) {
+        const prisma = new PrismaClient();
+        const knownFiles = await prisma.rawZillowData.findMany({
+          where: {},
+          distinct: ["filename"],
+          select: { filename: true },
+        });
+        const flatKnownFiles = knownFiles.map((result) => {
+          return result.filename;
+        });
+        const filesInDir = await s3.send(
+          new ListObjectsV2Command({
+            Bucket: env.AWS_BUCKET_NAME,
+          })
+        );
+        logger.debug(filesInDir);
+        if (!filesInDir.Contents) {
+          throw "No data in s3 bucket";
+        }
+        const jsonInDir = filesInDir.Contents.filter((file) => {
+          const fileName = file.Key?.split("/").slice(-1)[0];
+          if (file.Key && fileName) {
+            return (
+              path.extname(file.Key).toLocaleLowerCase() === ".json" &&
+              !flatKnownFiles.includes(fileName)
+            );
+          }
+        });
+        const allFileData = await Promise.all(
+          jsonInDir
+            .filter((file) => !!file.Key)
+            .map(async (file) => {
+              const fileData = await s3.send(
+                new GetObjectCommand({
+                  Bucket: env.AWS_BUCKET_NAME,
+                  Key: file.Key,
+                })
+              );
+              const fileDataString = await fileData.Body?.transformToString();
+              if (fileDataString) {
+                const rawPropertyData = JSON.parse(
+                  fileDataString
+                ) as IRawProperty[];
+                const enhancedPropertyData: IRawZillowData[] =
+                  rawPropertyData.map((prop: IRawProperty) => {
+                    if (file.Key) {
+                      prop["filename"] = file.Key.split("/").slice(-1)[0];
+                    }
+                    const zillowData = new RawZillowData(
+                      prop as IRawPropertyWithFileInfo
+                    );
+                    return zillowData.asObject();
+                  });
+                return enhancedPropertyData;
+              }
+              return null;
+            })
+        );
+
+        logger.debug("Parsed all JSON");
+        let totalRecords = 0;
+        await Promise.all(
+          allFileData.map(async (fileData) => {
+            if (fileData) {
+              const recordsCreated = await prisma.rawZillowData.createMany({
+                data: fileData,
+              });
+              totalRecords += recordsCreated.count;
+            }
+          })
+        );
+        res.status(200).json(totalRecords);
+      } else {
+        res.status(401).json({ success: false });
+      }
+    } catch (err) {
+      let message = null;
+      if (err && typeof err == "object" && "message" in err) {
+        message = err.message as string;
+      }
+      res.status(500).json({ statusCode: 500, message });
+    }
+  } else {
+    res.setHeader("Allow", "POST");
+    res.status(405).end("Method Not Allowed");
+  }
+}
 
 class RawZillowData implements IRawZillowData {
   readonly address: string;
@@ -79,7 +187,6 @@ class RawZillowData implements IRawZillowData {
     return this.#rawData.price ? Number(this.#rawData.price) : undefined;
   }
 
-
   get rank() {
     return this.#rawData.rank ? Number(this.#rawData.rank) : undefined;
   }
@@ -120,80 +227,5 @@ class RawZillowData implements IRawZillowData {
       zestimate: this.zestimate,
       filename: this.filename,
     };
-  }
-}
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const logger = getLogger("cron");
-
-  if (req.method === "POST") {
-    try {
-      const { authorization } = req.headers;
-      const scrapedDataPath =
-        "/home/matt/Dropbox/Apps/ScrapeHero-Cloud/Zillow Scraper";
-      if (authorization === `Bearer ${env.API_SECRET_KEY}`) {
-        const prisma = new PrismaClient();
-        const knownFiles = await prisma.rawZillowData.findMany({
-          where: {},
-          distinct: ["filename"],
-          select: { filename: true },
-        });
-        const flatKnownFiles = knownFiles.map((result) => {
-          return result.filename;
-        });
-        const filesInDir = await readdir(scrapedDataPath);
-        const jsonInDir = filesInDir.filter((file) => {
-          return (
-            path.extname(file).toLocaleLowerCase() === ".json" &&
-            !flatKnownFiles.includes(file)
-          );
-        });
-        const allFileData = await Promise.all(
-          jsonInDir.map(async (file) => {
-            const fileData = await readFile(path.join(scrapedDataPath, file));
-            const fileDataString = fileData.toString();
-            const rawPropertyData = JSON.parse(
-              fileDataString
-            ) as IRawProperty[];
-            const enhancedPropertyData: IRawZillowData[] = rawPropertyData.map(
-              (prop: IRawProperty) => {
-                prop["filename"] = file;
-                const zillowData = new RawZillowData(
-                  prop as IRawPropertyWithFileInfo
-                );
-                return zillowData.asObject();
-              }
-            );
-            return enhancedPropertyData;
-          })
-        );
-        logger.debug("Parsed all JSON");
-        // const recordsCreated = await prisma.raw_zillow_data.createMany({
-        //   data: allFileData,
-        // });
-        let totalRecords = 0;
-        await Promise.all(allFileData.map(async (fileData) => {
-          const recordsCreated = await prisma.rawZillowData.createMany({
-            data: fileData as RawZillowData[],
-          });
-          totalRecords += recordsCreated.count;
-        }));
-        res.status(200).json(totalRecords);
-      } else {
-        res.status(401).json({ success: false });
-      }
-    } catch (err) {
-      let message = null;
-      if (err && typeof err == "object" && "message" in err) {
-        message = err.message as string;
-      }
-      res.status(500).json({ statusCode: 500, message });
-    }
-  } else {
-    res.setHeader("Allow", "POST");
-    res.status(405).end("Method Not Allowed");
   }
 }
