@@ -2,11 +2,15 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { getLogger } from "../logging/logging-util";
-import { ZillowDataView } from "@prisma/client";
+import type { ZillowDataView } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 
 
-const Home = ({houses}: {houses: ZillowDataView[]}) => {
+interface HomepageProps {
+  houses: ZillowDataView[]
+}
+
+const Home: NextPage<HomepageProps> = ({houses}: HomepageProps) => {
   const logger = getLogger('home');
   const MapWithNoSSR = dynamic(() => import("../components/DeckMap"), {
     ssr: false,
