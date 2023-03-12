@@ -4,14 +4,14 @@ import dynamic from "next/dynamic";
 import { getLogger } from "../logging/logging-util";
 import type { ZillowDataView } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
-import Nav from "../components/Nav";
+
 
 interface HomepageProps {
-  houses: ZillowDataView[];
+  houses: ZillowDataView[]
 }
 
-const Home: NextPage<HomepageProps> = ({ houses }: HomepageProps) => {
-  const logger = getLogger("home");
+const Home: NextPage<HomepageProps> = ({houses}: HomepageProps) => {
+  const logger = getLogger('home');
   const MapWithNoSSR = dynamic(() => import("../components/DeckMap"), {
     ssr: false,
   });
@@ -25,11 +25,11 @@ const Home: NextPage<HomepageProps> = ({ houses }: HomepageProps) => {
         <title>Homer</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Nav active="map" />
+        <Nav active="map" />
 
       <main className="flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
             Let&rsquo;s find a nice house!
           </h1>
         </div>
@@ -46,20 +46,20 @@ function exclude<ZillowDataView, Key extends keyof ZillowDataView>(
   keys: Key[]
 ): Omit<ZillowDataView, Key> {
   for (const key of keys) {
-    delete house[key];
+    delete house[key]
   }
-  return house;
+  return house
 }
 
 export const getServerSideProps = async () => {
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient()
   const rawHouses = await prisma.zillowDataView.findMany();
   // TODO: Drop createdAt from the view entirely
-  const houses = rawHouses.map((house) => exclude(house, ["createdAt"]));
+  const houses = rawHouses.map((house) => exclude(house, ['createdAt']))
   return {
     props: {
-      houses,
-    },
-  };
-};
+      houses
+    }
+  }
+}
 export default Home;
