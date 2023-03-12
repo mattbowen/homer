@@ -35,14 +35,14 @@ const DeckMap = ({houses}: {houses: ZillowDataView[]}) => {
     maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
   });
   return (
-    <div style={{ width: "100%", height: "70vh" }}>
+    <div style={{ width: "100%", height: "80vh" }}>
       <Map
         initialViewState={{
           longitude: -76.8227368,
           latitude: 39.2859917,
           zoom: 12,
         }}
-        style={{ width: "100%", height: "50vh" }}
+        style={{ width: "100%", height: "80vh" }}
         mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
         mapStyle="mapbox://styles/mapbox/streets-v12"
       >
