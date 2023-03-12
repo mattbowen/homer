@@ -203,7 +203,7 @@ const ListingPage: NextPage<ListingPageProps> = ({
             </div>
           </div>
         </div>
-        <div className="col-span-3 columns-2 gap-4">{cards}</div>
+        <div className="col-span-3 columns-1 md:columns-2 gap-4">{cards}</div>
       </main>
     </>
   );
