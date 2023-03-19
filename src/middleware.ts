@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
     emails.includes(session.user.email.toLowerCase())
   ) {
     // Try redirecting here to the homepage
-    if(req.destination.includes('login')) {
+    if(req.nextUrl.href.includes('login')) {
       const redirectUrl = req.nextUrl.clone();
       redirectUrl.pathname = "/";
       return NextResponse.redirect(redirectUrl);
