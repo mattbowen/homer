@@ -16,7 +16,7 @@ const Login: NextPage = () => {
       <Head>
         <title>Login</title>
       </Head>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
+      <main className="flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <div className="container" style={{ padding: "50px 0 100px 0" }}>
             <Auth

@@ -4,7 +4,7 @@ import Head from "next/head";
 import { getLogger } from "../logging/logging-util";
 import type { ZillowDataView } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
-import { Card, Checkbox, Label, RangeSlider } from "flowbite-react";
+import { Card, Checkbox, Label, RangeSlider, TextInput } from "flowbite-react";
 import Nav from "../components/Nav";
 import { useState } from "react";
 
@@ -195,7 +195,12 @@ const ListingPage: NextPage<ListingPageProps> = ({
             </div>
           </div>
         </div>
-        <div className="col-span-3 columns-1 gap-4 md:columns-2">{cards}</div>
+
+        <div className="col-span-3 columns-1 gap-4 md:columns-2">
+
+          {cards}
+          
+          </div>
       </main>
     </>
   );
