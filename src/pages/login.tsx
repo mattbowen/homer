@@ -8,6 +8,13 @@ import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
+type Redirect = {
+  redirect: {
+    permanent: boolean;
+    destination: string;
+  };
+};
+
 const Login: NextPage = () => {
   const supabase = useSupabaseClient();
 
@@ -36,12 +43,7 @@ const Login: NextPage = () => {
 };
 
 export default Login;
-type Redirect = {
-  redirect: {
-    permanent: boolean;
-    destination: string;
-  };
-};
+
 
 export const getServerSideProps: GetServerSideProps<Redirect | object> = async (
   context: GetServerSidePropsContext
@@ -52,6 +54,10 @@ export const getServerSideProps: GetServerSideProps<Redirect | object> = async (
   } = await supabase.auth.getSession();
 
   if (session) {
+    const { res } = context;
+    res.setHeader("location", "/");
+    res.statusCode = 302;
+    res.end();
     return {
       redirect: {
         permanent: false,
