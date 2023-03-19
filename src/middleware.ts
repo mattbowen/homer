@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
   if (
     session?.user.email &&
     emails &&
-    emails.includes(session.user.email)
+    emails.includes(session.user.email.toLowerCase())
   ) {
     // Authentication successful, forward request to protected route.
     return res;
@@ -42,6 +42,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    "/listing",
     "/api/trpc/:path*",
     // "/((?!api/cron|login|_next/static|_next/image|_next/|favicon.ico|404|500).*)",
   ],
