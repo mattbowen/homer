@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
     emails.includes(session.user.email.toLowerCase())
   ) {
     // Try redirecting here to the homepage
-    if(req.nextUrl.pathname.includes('login')) {
+    if (req.nextUrl.pathname.startsWith("/login")) {
       const redirectUrl = req.nextUrl.clone();
       redirectUrl.pathname = "/";
       return NextResponse.redirect(redirectUrl);
@@ -38,11 +38,12 @@ export async function middleware(req: NextRequest) {
     // Authentication successful, forward request to protected route.
     return res;
   }
-  // Auth condition not met, redirect to home page.
-  const redirectUrl = req.nextUrl.clone();
-  redirectUrl.pathname = "/login";
-  redirectUrl.searchParams.set(`redirectedFrom`, req.nextUrl.pathname);
-  return NextResponse.redirect(redirectUrl);
+  if (!req.nextUrl.pathname.startsWith("/login")) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = "/login";
+    redirectUrl.searchParams.set(`redirectedFrom`, req.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
+  }
 }
 
 export const config = {
@@ -50,6 +51,7 @@ export const config = {
     "/",
     "/listing",
     "/api/trpc/:path*",
+    "/login",
     // "/((?!api/cron|login|_next/static|_next/image|_next/|favicon.ico|404|500).*)",
   ],
 };
