@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect } from "react";
+import type { MouseEvent } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { getLogger } from "../logging/logging-util";
@@ -29,53 +29,45 @@ const ListingPage: NextPage<ListingPageProps> = ({
     .filter((price) => price !== null) as number[];
   const minHousePrice = Math.min(...housePrices);
   const maxHousePrice = Math.max(...housePrices);
-  const [visibleHouses, setVisibleHouses] = useState<ZillowDataView[]>(houses);
   const [priceRange, setPriceRange] = useState<[number, number]>([
     minHousePrice,
     675000,
   ]);
-  const districts: { [key: string]: boolean } = {
-    centennial: true,
-    glenelg: true,
-    "marriotts-ridge": true,
-    "river-hill": true,
-    atholton: false,
+  const initialDistricts: { [key: string]: boolean } = {
+    "Centennial HS": true,
+    "Glenelg HS": true,
+    "Marriotts Ridge HS": true,
+    "River Hill HS": true,
+    "Atholton HS": false,
   };
-  const districtsToIds: { [key: string]: string } = {
-    centennial: "Centennial HS",
-    glenelg: "Glenelg HS",
-    "marriotts-ridge": "Marriotts Ridge HS",
-    "river-hill": "River Hill HS",
-    atholton: "Atholton HS",
-  };
-  const getFilteredHouseList = () => {
+  const [districts, setDistricts] = useState<{ [key: string]: boolean }>(
+    initialDistricts
+  );
+  const getFilteredHouseList = (currentDistricts: { [key: string]: boolean } = initialDistricts) => {
     const schoolNames = new Set(
-      Object.keys(districts)
-        .filter((key) => districts[key])
-        .map((key) => districtsToIds[key])
+      Object.keys(currentDistricts).filter((key) => !!districts[key])
     );
-    console.log(schoolNames);
     const filteredHouses = houses.filter(
       (house) =>
         house.price &&
         house.price < priceRange[1] &&
-        house.price > priceRange[0] &&
         house.school_name &&
         schoolNames.has(house.school_name.trim())
     );
-    console.log(filteredHouses);
     return filteredHouses;
   };
-  useEffect(() => {
-    setVisibleHouses(() => {
-      return getFilteredHouseList();
-    });
-  });
+
+  const [visibleHouses, setVisibleHouses] = useState<ZillowDataView[]>(
+    getFilteredHouseList()
+  );
   const updateDistricts = (e: MouseEvent<HTMLInputElement>) => {
-    const targetId = e.currentTarget.id;
-    if (targetId in districts) {
-      districts[targetId] = e.currentTarget.checked;
+    const targetId = e.currentTarget.id || "";
+    const label =
+      document.querySelector(`label[for=${targetId}]`)?.textContent || "";
+    if (label in districts) {
+      districts[label.trim()] = e.currentTarget.checked;
     }
+    setDistricts(() => districts)
     setVisibleHouses(() => {
       return getFilteredHouseList();
     });
@@ -167,7 +159,7 @@ const ListingPage: NextPage<ListingPageProps> = ({
                 defaultChecked={true}
                 onClick={updateDistricts}
               />
-              <Label htmlFor="centennial">Centennial</Label>
+              <Label htmlFor="centennial">Centennial HS</Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
@@ -175,7 +167,7 @@ const ListingPage: NextPage<ListingPageProps> = ({
                 defaultChecked={true}
                 onClick={updateDistricts}
               />
-              <Label htmlFor="glenelg">Glenelg</Label>
+              <Label htmlFor="glenelg">Glenelg HS</Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
@@ -183,7 +175,7 @@ const ListingPage: NextPage<ListingPageProps> = ({
                 defaultChecked={true}
                 onClick={updateDistricts}
               />
-              <Label htmlFor="marriotts-ridge">Marriotts Ridge</Label>
+              <Label htmlFor="marriotts-ridge">Marriotts Ridge HS</Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
@@ -191,7 +183,7 @@ const ListingPage: NextPage<ListingPageProps> = ({
                 defaultChecked={true}
                 onClick={updateDistricts}
               />
-              <Label htmlFor="river-hill">River Hill</Label>
+              <Label htmlFor="river-hill">River Hill HS</Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
@@ -199,11 +191,11 @@ const ListingPage: NextPage<ListingPageProps> = ({
                 defaultChecked={false}
                 onClick={updateDistricts}
               />
-              <Label htmlFor="atholton">Atholton</Label>
+              <Label htmlFor="atholton">Atholton HS</Label>
             </div>
           </div>
         </div>
-        <div className="col-span-3 columns-1 md:columns-2 gap-4">{cards}</div>
+        <div className="col-span-3 columns-1 gap-4 md:columns-2">{cards}</div>
       </main>
     </>
   );
