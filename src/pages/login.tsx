@@ -17,7 +17,6 @@ type Redirect = {
 
 const Login: NextPage = () => {
   const supabase = useSupabaseClient();
-
   return (
     <>
       <Head>
@@ -52,9 +51,11 @@ export const getServerSideProps: GetServerSideProps<Redirect | object> = async (
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
+  const { res } = context;
+  res.setHeader('Cache-Control', ['no-cache', 'no-store', 'must-revalidate'])
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
   if (session) {
-    const { res } = context;
     res.setHeader("location", "/");
     res.statusCode = 302;
     res.end();

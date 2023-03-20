@@ -19,5 +19,6 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  generateEtags: false,
 };
 export default config;
